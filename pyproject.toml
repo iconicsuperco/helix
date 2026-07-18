@@ -66,7 +66,7 @@ line-ending = "lf"
 
 [tool.mypy]
 python_version = "3.11"
-files = ["helix", "research", "tests"]
+files = ["helix", "research", "tests", "train.py"]
 namespace_packages = true
 explicit_package_bases = true
 no_site_packages = true
@@ -85,7 +85,18 @@ exclude = [
 ]
 
 [[tool.mypy.overrides]]
-module = ["numpy", "pytest", "tokenizers", "torch", "torch.nn", "torch.nn.functional", "yaml"]
+module = [
+  "numpy",
+  "pytest",
+  "tokenizers",
+  "torch",
+  "torch.nn",
+  "torch.nn.functional",
+  "torch.optim",
+  "torch.optim.lr_scheduler",
+  "torch.utils.data",
+  "yaml",
+]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

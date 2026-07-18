@@ -1,0 +1,44 @@
+model_config: config/model/transformer.yaml
+
+data:
+  train_paths:
+    - datasets/processed/tokenizer-training/train.txt
+  validation_paths:
+    - datasets/processed/tokenizer-training/heldout.txt
+  validation_fraction: 0.0
+  context_length: 128
+  append_eos: true
+
+loader:
+  batch_size: 8
+  num_workers: 0
+  shuffle: true
+  drop_last: true
+  pin_memory: false
+
+optimizer:
+  learning_rate: 0.0003
+  min_learning_rate: 0.00003
+  weight_decay: 0.1
+  beta1: 0.9
+  beta2: 0.95
+  gradient_clip_norm: 1.0
+
+loop:
+  seed: 1337
+  device: auto
+  deterministic: false
+  max_steps: 1000
+  warmup_steps: 100
+  log_interval: 10
+  evaluation_interval: 100
+  evaluation_batches: 20
+  checkpoint_interval: 250
+
+checkpoint:
+  directory: checkpoints/forge
+  resume_from: null
+
+logging:
+  level: INFO
+  format: json
