@@ -82,6 +82,7 @@ def test_special_tokens_use_fixed_reserved_ids_and_clean_text_stays_clean() -> N
     clean_text = "Text without a reserved marker."
     assert not set(encode(clean_text)).intersection(range(len(special_tokens)))
     assert decode(encode(clean_text)) == clean_text
+    assert decode([1, *encode(clean_text), 2]) == clean_text
 
 
 def test_encode_batch_matches_individual_encode_calls() -> None:

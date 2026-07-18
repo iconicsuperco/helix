@@ -52,10 +52,7 @@ def _get_tokenizer() -> Tokenizer:
     if _tokenizer is None or _loaded_artifact_path != artifact_path:
         if not artifact_path.is_file():
             raise FileNotFoundError(f"Tokenizer artifact does not exist: {artifact_path}")
-        try:
-            _tokenizer = Tokenizer.from_file(str(artifact_path))
-        except Exception as error:
-            raise RuntimeError(f"Unable to load tokenizer artifact: {artifact_path}") from error
+        _tokenizer = Tokenizer.from_file(str(artifact_path))
         _loaded_artifact_path = artifact_path
     return _tokenizer
 
@@ -67,9 +64,9 @@ def encode(text: str) -> list[int]:
 
 
 def decode(ids: list[int]) -> str:
-    """Decode token IDs while retaining explicitly supplied special tokens."""
+    """Decode token IDs to clean text, excluding reserved special tokens."""
 
-    return cast(str, _get_tokenizer().decode(ids, skip_special_tokens=False))
+    return cast(str, _get_tokenizer().decode(ids, skip_special_tokens=True))
 
 
 def encode_batch(texts: list[str]) -> list[list[int]]:
