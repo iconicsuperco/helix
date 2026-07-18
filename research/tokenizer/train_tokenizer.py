@@ -6,15 +6,14 @@ import argparse
 import hashlib
 import importlib
 import json
-import logging
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import cast
 
-import tokenizers  # type: ignore[import-untyped]
+import tokenizers
 import yaml
 from tokenizers import (
     Tokenizer,
@@ -25,33 +24,12 @@ from tokenizers import (
     trainers,
 )
 
+from helix.common.logging import configure_logging, get_logger
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = get_logger(__name__)
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG_PATH = REPOSITORY_ROOT / "config" / "model" / "tokenizer.yaml"
 CONFIG_ENVIRONMENT_VARIABLE = "HELIX_TOKENIZER_CONFIG"
-LOG_RECORD_FIELDS = frozenset(logging.makeLogRecord({}).__dict__)
-
-
-class JsonFormatter(logging.Formatter):
-    """Format research pipeline logs as one JSON object per line."""
-
-    def format(self, record: logging.LogRecord) -> str:
-        payload: dict[str, object] = {
-            "level": record.levelname.lower(),
-            "logger": record.name,
-            "message": record.getMessage(),
-        }
-        payload.update(
-            {
-                key: value
-                for key, value in record.__dict__.items()
-                if key not in LOG_RECORD_FIELDS and key not in {"message", "asctime"}
-            }
-        )
-        if record.exc_info is not None:
-            payload["exception"] = self.formatException(record.exc_info)
-        return json.dumps(payload, ensure_ascii=False)
 
 
 @dataclass(frozen=True)
@@ -79,9 +57,7 @@ class TrainingConfig:
 
 
 def _configure_logging() -> None:
-    handler = logging.StreamHandler()
-    handler.setFormatter(JsonFormatter())
-    logging.basicConfig(level=logging.INFO, handlers=[handler], force=True)
+    configure_logging()
 
 
 def _load_mapping(path: Path, description: str) -> dict[str, object]:
@@ -241,7 +217,7 @@ def _write_tokenizer_card(
     if not isinstance(placeholder, bool):
         raise ValueError("Corpus manifest must contain a boolean placeholder_corpus field")
 
-    training_date = datetime.now(timezone.utc).date().isoformat()
+    training_date = datetime.now(UTC).date().isoformat()
     special_token_rows = "\n".join(
         f"| `{token}` | {token_id} |" for token_id, token in enumerate(config.special_tokens)
     )

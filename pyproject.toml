@@ -1,0 +1,94 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "helix-ai"
+version = "0.1.0"
+description = "Helix research infrastructure for a small owned language-model lineage."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "Helix Contributors" }]
+keywords = ["ai", "language-model", "research", "transformer", "tokenizer"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Typing :: Typed",
+]
+dependencies = [
+  "numpy>=2.0",
+  "PyYAML>=6.0",
+  "tokenizers>=0.22.0",
+  "torch>=2.7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.14",
+  "pre-commit>=4.0",
+  "pytest>=8.3",
+  "ruff>=0.8",
+  "types-PyYAML>=6.0",
+]
+quality = [
+  "mypy>=1.14",
+  "pre-commit>=4.0",
+  "ruff>=0.8",
+  "types-PyYAML>=6.0",
+]
+test = ["pytest>=8.3"]
+
+[tool.setuptools.packages.find]
+include = ["helix*", "research*"]
+namespaces = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+  ".git",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  "datasets",
+  "research/tokenizer/artifacts/tokenizer.json",
+]
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP"]
+
+[tool.ruff.format]
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.11"
+files = ["helix", "research", "tests"]
+namespace_packages = true
+explicit_package_bases = true
+no_site_packages = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+pretty = true
+show_error_codes = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+exclude = [
+  "^datasets/",
+  "^research/tokenizer/artifacts/",
+]
+
+[[tool.mypy.overrides]]
+module = ["numpy", "pytest", "tokenizers", "torch", "torch.nn", "torch.nn.functional", "yaml"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra"
+testpaths = ["tests"]

@@ -7,8 +7,7 @@ from pathlib import Path
 from typing import cast
 
 import yaml
-from tokenizers import Tokenizer  # type: ignore[import-untyped]
-
+from tokenizers import Tokenizer
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_ENVIRONMENT_VARIABLE = "HELIX_TOKENIZER_CONFIG"

@@ -5,41 +5,19 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import logging
 import unicodedata
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import cast
 
 import yaml
 
+from helix.common.logging import configure_logging, get_logger
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = get_logger(__name__)
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG_PATH = REPOSITORY_ROOT / "config" / "model" / "tokenizer.yaml"
-LOG_RECORD_FIELDS = frozenset(logging.makeLogRecord({}).__dict__)
-
-
-class JsonFormatter(logging.Formatter):
-    """Format research pipeline logs as one JSON object per line."""
-
-    def format(self, record: logging.LogRecord) -> str:
-        payload: dict[str, object] = {
-            "level": record.levelname.lower(),
-            "logger": record.name,
-            "message": record.getMessage(),
-        }
-        payload.update(
-            {
-                key: value
-                for key, value in record.__dict__.items()
-                if key not in LOG_RECORD_FIELDS and key not in {"message", "asctime"}
-            }
-        )
-        if record.exc_info is not None:
-            payload["exception"] = self.formatException(record.exc_info)
-        return json.dumps(payload, ensure_ascii=False)
 
 
 @dataclass(frozen=True)
@@ -60,9 +38,7 @@ class CorpusConfig:
 
 
 def _configure_logging() -> None:
-    handler = logging.StreamHandler()
-    handler.setFormatter(JsonFormatter())
-    logging.basicConfig(level=logging.INFO, handlers=[handler], force=True)
+    configure_logging()
 
 
 def _load_mapping(config_path: Path) -> dict[str, object]:
@@ -173,7 +149,9 @@ def prepare_corpus(config_path: Path = DEFAULT_CONFIG_PATH) -> Path:
     """Clean configured raw inputs, write train/held-out files, and return the manifest path."""
 
     config = _load_config(config_path.resolve())
-    raw_files = sorted(path for path in config.raw_corpus_path.glob(config.raw_file_glob) if path.is_file())
+    raw_files = sorted(
+        path for path in config.raw_corpus_path.glob(config.raw_file_glob) if path.is_file()
+    )
     if not raw_files:
         raise FileNotFoundError(
             f"No raw corpus files matching '{config.raw_file_glob}' in {config.raw_corpus_path}"
@@ -194,7 +172,7 @@ def prepare_corpus(config_path: Path = DEFAULT_CONFIG_PATH) -> Path:
     training_path.write_bytes(training_content)
     heldout_path.write_bytes(heldout_content)
 
-    processed_date = datetime.now(timezone.utc).date().isoformat()
+    processed_date = datetime.now(UTC).date().isoformat()
     training_hash = _sha256(training_content)
     heldout_hash = _sha256(heldout_content)
     manifest: dict[str, object] = {

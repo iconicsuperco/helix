@@ -2,23 +2,15 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import torch
 import torch.nn.functional as functional
 import yaml
 
-
-REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
-MODEL_MODULE_PATH = REPOSITORY_ROOT / "research" / "model"
-sys.path.insert(0, str(MODEL_MODULE_PATH))
-sys.path.insert(0, str(REPOSITORY_ROOT))
-
-from config import DEFAULT_CONFIG_PATH, TransformerConfig, load_config
+from research.model.config import DEFAULT_CONFIG_PATH, TransformerConfig, load_config
+from research.model.transformer import HelixTransformer
 from research.tokenizer.tokenizer import encode
-from transformer import HelixTransformer
-
 
 DEFAULT_PARAMETER_ESTIMATE = 16_889_856
 PARAMETER_COUNT_TOLERANCE = 0.05
@@ -66,9 +58,7 @@ def _small_config(path: Path) -> TransformerConfig:
 def _expected_parameter_count(config: TransformerConfig) -> int:
     """Calculate the tied-weight architecture's parameter count by component."""
 
-    embedding_parameters = (
-        config.vocab_size * config.n_embd + config.block_size * config.n_embd
-    )
+    embedding_parameters = config.vocab_size * config.n_embd + config.block_size * config.n_embd
     attention_parameters = (
         3 * config.n_embd * config.n_embd
         + 3 * config.n_embd
@@ -77,19 +67,12 @@ def _expected_parameter_count(config: TransformerConfig) -> int:
     )
     mlp_width = 4 * config.n_embd
     mlp_parameters = (
-        config.n_embd * mlp_width
-        + mlp_width
-        + mlp_width * config.n_embd
-        + config.n_embd
+        config.n_embd * mlp_width + mlp_width + mlp_width * config.n_embd + config.n_embd
     )
     block_layer_norm_parameters = 4 * config.n_embd
     final_layer_norm_parameters = 2 * config.n_embd
     block_parameters = attention_parameters + mlp_parameters + block_layer_norm_parameters
-    return (
-        embedding_parameters
-        + config.n_layer * block_parameters
-        + final_layer_norm_parameters
-    )
+    return embedding_parameters + config.n_layer * block_parameters + final_layer_norm_parameters
 
 
 def _overfit_batch() -> torch.Tensor:
@@ -105,10 +88,7 @@ def _overfit_batch() -> torch.Tensor:
     rows: list[list[int]] = []
     for text in texts:
         token_ids = encode(text)[:OVERFIT_SEQUENCE_LENGTH]
-        rows.append(
-            token_ids
-            + [pad_token_id] * (OVERFIT_SEQUENCE_LENGTH - len(token_ids))
-        )
+        rows.append(token_ids + [pad_token_id] * (OVERFIT_SEQUENCE_LENGTH - len(token_ids)))
     return torch.tensor(rows, dtype=torch.long)
 
 
@@ -205,10 +185,8 @@ def test_single_batch_can_overfit_as_architecture_sanity_check() -> None:
     for _ in range(OVERFIT_MAX_STEPS):
         optimizer.zero_grad(set_to_none=True)
         logits = model(inputs)
-        loss = functional.cross_entropy(
-            logits.reshape(-1, config.vocab_size), targets.reshape(-1)
-        )
-        loss.backward()  # type: ignore[no-untyped-call]
+        loss = functional.cross_entropy(logits.reshape(-1, config.vocab_size), targets.reshape(-1))
+        loss.backward()
         optimizer.step()
         if loss.item() < OVERFIT_LOSS_THRESHOLD:
             break

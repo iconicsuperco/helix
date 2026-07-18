@@ -8,7 +8,6 @@ from typing import cast
 
 import yaml
 
-
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG_PATH = REPOSITORY_ROOT / "config" / "model" / "transformer.yaml"
 

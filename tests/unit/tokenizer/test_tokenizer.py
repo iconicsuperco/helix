@@ -2,19 +2,15 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import cast
 
 import yaml
 
+from research.tokenizer.tokenizer import decode, encode, encode_batch
+
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 CONFIG_PATH = REPOSITORY_ROOT / "config" / "model" / "tokenizer.yaml"
-TOKENIZER_MODULE_PATH = REPOSITORY_ROOT / "research" / "tokenizer"
-sys.path.insert(0, str(TOKENIZER_MODULE_PATH))
-
-from tokenizer import decode, encode, encode_batch
-
 
 PLAIN_TEXTS = [
     "Helix owns every stage from text to tokens.",
@@ -27,7 +23,7 @@ UNICODE_TEXTS = [
 ]
 CODE_TEXTS = [
     "def compare(value: int) -> bool:\n\treturn value <= 10 and value != 3\n",
-    "const template = `<section data-id=\"${id}\">& text</section>`;\n  // two spaces\n",
+    'const template = `<section data-id="${id}">& text</section>`;\n  // two spaces\n',
 ]
 EDGE_TEXTS = ["", "a" * 10_000, " \t\n  \t"]
 ALL_TEST_TEXTS = PLAIN_TEXTS + UNICODE_TEXTS + CODE_TEXTS + EDGE_TEXTS
@@ -42,7 +38,9 @@ def _tokenizer_config() -> dict[str, object]:
 
 def _configured_special_tokens() -> list[str]:
     special_tokens = _tokenizer_config().get("special_tokens")
-    if not isinstance(special_tokens, list) or not all(isinstance(token, str) for token in special_tokens):
+    if not isinstance(special_tokens, list) or not all(
+        isinstance(token, str) for token in special_tokens
+    ):
         raise AssertionError("Tokenizer special_tokens must be a list of strings")
     return cast(list[str], special_tokens)
 

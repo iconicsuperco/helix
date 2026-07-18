@@ -3,13 +3,18 @@
 from __future__ import annotations
 
 import math
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import torch
 import torch.nn.functional as functional
 from torch import nn
 
-from config import TransformerConfig
+if TYPE_CHECKING:
+    from research.model.config import TransformerConfig
+elif __package__:
+    from research.model.config import TransformerConfig
+else:  # Preserve direct execution/import from research/model.
+    from config import TransformerConfig
 
 
 class CausalSelfAttention(nn.Module):
@@ -33,15 +38,9 @@ class CausalSelfAttention(nn.Module):
         batch_size, sequence_length, embedding_dim = hidden_states.shape
         query, key, value = self.qkv_projection(hidden_states).split(self.n_embd, dim=2)
 
-        query = query.view(
-            batch_size, sequence_length, self.n_head, self.head_dim
-        ).transpose(1, 2)
-        key = key.view(
-            batch_size, sequence_length, self.n_head, self.head_dim
-        ).transpose(1, 2)
-        value = value.view(
-            batch_size, sequence_length, self.n_head, self.head_dim
-        ).transpose(1, 2)
+        query = query.view(batch_size, sequence_length, self.n_head, self.head_dim).transpose(1, 2)
+        key = key.view(batch_size, sequence_length, self.n_head, self.head_dim).transpose(1, 2)
+        value = value.view(batch_size, sequence_length, self.n_head, self.head_dim).transpose(1, 2)
 
         attended = functional.scaled_dot_product_attention(
             query,
@@ -50,8 +49,8 @@ class CausalSelfAttention(nn.Module):
             dropout_p=self.dropout if self.training else 0.0,
             is_causal=True,
         )
-        attended = attended.transpose(1, 2).contiguous().view(
-            batch_size, sequence_length, embedding_dim
+        attended = (
+            attended.transpose(1, 2).contiguous().view(batch_size, sequence_length, embedding_dim)
         )
         return cast(torch.Tensor, self.residual_dropout(self.output_projection(attended)))
 
@@ -109,9 +108,7 @@ class HelixTransformer(nn.Module):
         self.token_embedding = nn.Embedding(config.vocab_size, config.n_embd)
         self.position_embedding = nn.Embedding(config.block_size, config.n_embd)
         self.embedding_dropout = nn.Dropout(config.dropout)
-        self.blocks = nn.ModuleList(
-            TransformerBlock(config) for _ in range(config.n_layer)
-        )
+        self.blocks = nn.ModuleList(TransformerBlock(config) for _ in range(config.n_layer))
         self.final_layer_norm = nn.LayerNorm(config.n_embd)
         self.output_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 

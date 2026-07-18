@@ -1,0 +1,46 @@
+# Python caches and build outputs
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Research run outputs and large model artifacts
+checkpoints/
+runs/
+outputs/
+wandb/
+mlruns/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+
+# Data policy: raw data is local or externally versioned; checked-in manifests document it.
+datasets/raw/
+datasets/interim/
+datasets/external/
+
+# Keep the current A1 tokenizer artifact tracked, but ignore future generated variants.
+research/tokenizer/artifacts/*
+!research/tokenizer/artifacts/tokenizer.json
+!research/tokenizer/artifacts/tokenizer_card.md
