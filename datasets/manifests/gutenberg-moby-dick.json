@@ -1,0 +1,32 @@
+{
+  "content_hash": "bc1a181e166a877841874cb8edf81b8b3af6e858b4c49ed276d1ef0d44c2772b",
+  "corpus_name": "gutenberg-moby-dick",
+  "license": "Public domain in the USA; verify status in the deployment jurisdiction.",
+  "placeholder_corpus": true,
+  "processed_date": "2026-07-18",
+  "processed_outputs": {
+    "heldout": {
+      "path": "datasets/processed/tokenizer-training/heldout.txt",
+      "sha256": "6e5a61a28f1cf81606f0499bdd069a9bf5f1d59a8e5fa2ac3b89280a9a1ae4d9",
+      "unique_line_count": 1967
+    },
+    "training": {
+      "path": "datasets/processed/tokenizer-training/train.txt",
+      "sha256": "bc1a181e166a877841874cb8edf81b8b3af6e858b4c49ed276d1ef0d44c2772b",
+      "unique_line_count": 17535
+    }
+  },
+  "processing": {
+    "control_characters_removed_except": [
+      "newline",
+      "tab"
+    ],
+    "exact_duplicate_lines_removed": true,
+    "heldout_assignment": "sha256-line-hash",
+    "heldout_fraction": 0.1
+  },
+  "raw_files": [
+    "datasets/raw/gutenberg-moby-dick/moby-dick.txt"
+  ],
+  "source": "https://www.gutenberg.org/ebooks/15"
+}
