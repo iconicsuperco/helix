@@ -18,6 +18,12 @@ from torch.optim.lr_scheduler import LRScheduler
 
 CHECKPOINT_VERSION = 1
 MISSING_CONFIG_VALUE = "<missing>"
+_SAFE_CHECKPOINT_GLOBALS = (
+    cast(Any, np)._core.multiarray._reconstruct,
+    np.ndarray,
+    np.dtype,
+    type(np.dtype(np.uint32)),
+)
 RESUME_COMPATIBILITY_FIELDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("model.n_layer", ("model", "n_layer")),
     ("model.n_head", ("model", "n_head")),
@@ -275,7 +281,8 @@ def load_checkpoint(
 
     if not path.is_file():
         raise FileNotFoundError(f"Checkpoint does not exist: {path}")
-    loaded = torch.load(path, map_location=map_location, weights_only=False)
+    with torch.serialization.safe_globals(list(_SAFE_CHECKPOINT_GLOBALS)):
+        loaded = torch.load(path, map_location=map_location, weights_only=True)
     if not isinstance(loaded, dict):
         raise ValueError(f"Checkpoint at {path} must contain a mapping")
     payload = cast(dict[str, object], loaded)

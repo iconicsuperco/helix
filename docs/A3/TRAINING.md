@@ -122,8 +122,11 @@ Checkpoint format note: M2 adds tokenizer artifact SHA-256 and dataset file SHA-
 inside the saved checkpoint configuration. No repository legacy checkpoints existed when this
 validation was introduced.
 
-Only load checkpoints produced by a trusted Helix run. Complete optimizer and RNG restoration
-requires Python object deserialization and is not intended for untrusted artifacts.
+Checkpoint loading uses PyTorch's `weights_only=True` safe-loading mode. In addition to the
+built-in tensor and primitive types, the loader explicitly allowlists only NumPy's array
+reconstruction function, `ndarray`, base `dtype`, and concrete `UInt32DType`. These types are
+required to restore the NumPy MT19937 RNG state saved by the current checkpoint format. Other
+Python globals are rejected before model, optimizer, scheduler, or RNG state is restored.
 
 ## Current Scope
 
