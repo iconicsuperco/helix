@@ -14,6 +14,19 @@ python train.py --config config/training/smoke.yaml
 This profile trains the tiny smoke transformer for 20 steps against the checked-in sample
 corpus, evaluates twice, and writes ignored checkpoints under `checkpoints/smoke/`.
 
+## Integration Smoke Test
+
+The integration smoke test launches `train.py` as a subprocess with
+`config/training/smoke.yaml`, verifies that training completes and creates a checkpoint, then
+launches a second subprocess that resumes from that checkpoint. It runs in a temporary
+workspace, so generated checkpoints and configuration changes are removed automatically.
+
+Run it locally with:
+
+```bash
+uv run pytest tests/integration
+```
+
 ## Forge Run
 
 The default command loads `config/training/forge.yaml`:
