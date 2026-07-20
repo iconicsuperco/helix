@@ -21,17 +21,21 @@ Current version: `0.1.0`
 - M6 Documentation Accuracy: repository documentation synchronized with implemented behavior.
 - M7 Integration Smoke Test: subprocess training, checkpoint creation, and resume coverage.
 - M8 Minimal Inference: checkpoint-to-text greedy generation with tokenizer identity validation.
+- R1 Evaluation Framework: manifest-verified in-corpus and out-of-corpus perplexity, a fixed
+  prompt suite, automated repetition/distinct-n/memorization metrics, and manual-rubric reports.
 
 ## Current Repository State
 
-- The A3 training pipeline and M8 local inference path are implemented. The verified suite has
-  51 tests: 49 unit tests and 2 integration tests covering train/resume and train/inference.
+- The A3 training pipeline, M8 local inference path, and R1 evaluation framework are implemented.
+- Evaluation uses the Moby-Dick held-out split in-corpus and the independently versioned Project
+  Gutenberg Alice's Adventures in Wonderland corpus out-of-corpus.
+- The verified suite has 66 tests: 63 unit tests and 3 subprocess integration tests.
 - The default transformer has 16,889,856 trainable parameters.
 
 ## Next Milestone
 
-- A4 Base Model: select the production corpus and compute budget, then run Forge to a first
-  plateaued checkpoint.
+- R2 Dataset Expansion, followed by R3 Model Scaling. This canonical sequence supersedes the
+  older A4-to-A6 ordering.
 
 ## Known Technical Debt
 

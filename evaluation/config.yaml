@@ -1,0 +1,31 @@
+datasets:
+  in_corpus:
+    manifest_path: datasets/manifests/gutenberg-moby-dick.json
+    text_path: datasets/processed/tokenizer-training/heldout.txt
+    artifact: processed
+    artifact_name: heldout
+  out_of_corpus:
+    manifest_path: evaluation/datasets/manifests/gutenberg-alice-in-wonderland.json
+    text_path: evaluation/datasets/raw/gutenberg-alice-in-wonderland/pg11.txt
+    artifact: raw
+  memorization_corpus:
+    manifest_path: datasets/manifests/gutenberg-moby-dick.json
+    text_path: datasets/processed/tokenizer-training/train.txt
+    artifact: processed
+    artifact_name: training
+
+prompts:
+  path: evaluation/prompts/fixed_suite_v1.json
+
+metrics:
+  repetition_n: 4
+  distinct_n: 2
+  min_memorization_overlap_tokens: 12
+
+rubric:
+  id: helix-qualitative-rubric
+  version: v1
+  path: evaluation/rubric/qualitative_rubric_v1.md
+
+reports:
+  directory: evaluation/reports

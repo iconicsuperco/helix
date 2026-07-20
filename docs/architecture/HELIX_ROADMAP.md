@@ -14,8 +14,12 @@
 - The current default transformer has 16,889,856 parameters.
 - M8 provides local greedy generation from Forge checkpoints; it is a research CLI, not the
   Track B `ModelProvider` integration.
-- A4 is the next Track A research milestone. A5-A7 and all Track B milestones remain
-  unimplemented.
+- R1 Evaluation Framework is implemented. R2 Dataset Expansion and R3 Model Scaling remain
+  unimplemented, as do all Track B milestones.
+
+**Canonical sequencing update:** Infrastructure (M1-M8) -> R1 Evaluation Framework -> R2
+Dataset Expansion -> R3 Model Scaling. This supersedes the older A4-to-A6 ordering retained
+below for historical roadmap context.
 
 ---
 
@@ -41,7 +45,7 @@ Goal: a real, understood, owned model lineage — small, honest, and yours.
 - Data loading, checkpointing, structured training/validation metrics, and resumability.
 - Deliverable: a training run that completes without babysitting and produces a checkpoint + metrics.
 
-### A4. Base Model — First Real Checkpoint (Next)
+### A4. Base Model — First Real Checkpoint
 - Train on your chosen corpus until loss plateaus at your compute budget.
 - Acceptance criteria: model produces *coherent local grammar* — not necessarily correct facts. This is v0.1's actual bar.
 
@@ -90,5 +94,5 @@ Goal: a real, usable web app, model-agnostic from day one.
 
 ## Current Sequencing
 
-A1-A3 are complete. A4 is the next Track A milestone, followed by the remaining Track A
-milestones above. Track B has not started in this repository.
+The canonical R1 sequencing update above governs current work. Track B has not started in this
+repository.

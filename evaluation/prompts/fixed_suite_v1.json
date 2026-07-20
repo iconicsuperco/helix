@@ -1,0 +1,67 @@
+{
+  "suite_id": "helix-fixed-generation-suite",
+  "version": "v1",
+  "max_new_tokens": 32,
+  "prompts": [
+    {
+      "id": "moby-opening-reflection",
+      "category": "in_distribution",
+      "text": "Call me Ishmael. Whenever I find myself growing grim about the mouth,"
+    },
+    {
+      "id": "whaling-voyage",
+      "category": "in_distribution",
+      "text": "The whaling ship left Nantucket before dawn, and the crew"
+    },
+    {
+      "id": "captain-at-sea",
+      "category": "in_distribution",
+      "text": "The captain stood upon the quarter-deck and watched the dark sea"
+    },
+    {
+      "id": "harpooner-description",
+      "category": "in_distribution",
+      "text": "Describe a harpooner preparing for the chase in one paragraph:"
+    },
+    {
+      "id": "white-whale-rumor",
+      "category": "in_distribution",
+      "text": "Among the sailors there spread a rumor of a great white whale"
+    },
+    {
+      "id": "nineteenth-century-storm",
+      "category": "in_distribution",
+      "text": "Write in a nineteenth-century style about a storm crossing the ocean:"
+    },
+    {
+      "id": "garden-story",
+      "category": "out_of_distribution",
+      "text": "A child found a small brass key beneath the garden gate and"
+    },
+    {
+      "id": "tea-instructions",
+      "category": "out_of_distribution",
+      "text": "List three clear steps for making a cup of tea:"
+    },
+    {
+      "id": "leaves-explanation",
+      "category": "out_of_distribution",
+      "text": "Explain in simple English why leaves change color in autumn:"
+    },
+    {
+      "id": "train-arithmetic",
+      "category": "out_of_distribution",
+      "text": "A train travels 60 miles in two hours. Its average speed is"
+    },
+    {
+      "id": "friendly-letter",
+      "category": "out_of_distribution",
+      "text": "Write a short friendly note thanking a neighbor for their help:"
+    },
+    {
+      "id": "market-scene",
+      "category": "out_of_distribution",
+      "text": "At the busy Saturday market, musicians played while vendors"
+    }
+  ]
+}

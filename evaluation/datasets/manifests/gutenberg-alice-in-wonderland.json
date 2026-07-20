@@ -1,0 +1,34 @@
+{
+  "canonical_source": {
+    "catalog_url": "https://www.gutenberg.org/ebooks/11",
+    "content_type": "text/plain; charset=utf-8",
+    "http_status": 200,
+    "retrieval_method": "curl --fail --location --silent --show-error --dump-header /tmp/helix-r1-pg11.headers --output /tmp/helix-r1-pg11.txt https://www.gutenberg.org/ebooks/11.txt.utf-8",
+    "retrieved_at": "2026-07-20T11:24:45Z",
+    "selection_rationale": "Selected as a compact public-domain English literary corpus outside the Moby-Dick and whaling domain. The live Project Gutenberg catalog identifies eBook #11 independently, provides a UTF-8 plain-text representation, and keeps evaluation practical on CPU. Project Gutenberg eBook #1342 (Pride and Prejudice) was considered but its cataloged plain-text file is substantially larger; the HTML and EPUB representations of eBook #11 were rejected because markup and container structure would add format-specific evaluation noise.",
+    "url": "https://www.gutenberg.org/cache/epub/11/pg11.txt"
+  },
+  "current_version": "pg11-2025-06-26",
+  "dataset_id": "gutenberg-alice-in-wonderland",
+  "display_name": "Project Gutenberg Alice's Adventures in Wonderland",
+  "fallback_sources": [],
+  "license": "Public domain in the USA; distributed under the Project Gutenberg License. Verify status in the deployment jurisdiction.",
+  "processed": [],
+  "raw": {
+    "byte_count": 174311,
+    "encoding": "utf-8",
+    "expected_path": "evaluation/datasets/raw/gutenberg-alice-in-wonderland/pg11.txt",
+    "gitignored": true,
+    "sha256": "01b38ea4c710a84bc18d0bd41271a5a1a92b94e97b2812f4dece97d4a694725e",
+    "upstream_metadata": {
+      "author": "Lewis Carroll",
+      "ebook_number": 11,
+      "language": "English",
+      "last_updated": "2025-06-26",
+      "release_date": "2008-06-27",
+      "title": "Alice's Adventures in Wonderland"
+    },
+    "version": "pg11-2025-06-26"
+  },
+  "schema_version": 1
+}
