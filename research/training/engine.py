@@ -6,7 +6,9 @@ import logging
 import math
 import time
 from collections.abc import Iterator
+from copy import deepcopy
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
 from typing import cast
 
@@ -16,7 +18,10 @@ from torch import nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import LambdaLR, LRScheduler
 
+from helix.common.config import load_mapping
+from helix.common.exceptions import HelixPathError
 from helix.common.logging import get_logger
+from helix.common.paths import relative_to_repository, resolve_repository_path
 from research.training.checkpoint import load_checkpoint, save_training_checkpoint
 from research.training.config import TrainingConfig
 from research.training.data import Batch, TrainingDataLoaders
@@ -71,6 +76,87 @@ def create_lr_scheduler(optimizer: AdamW, config: TrainingConfig) -> LRScheduler
     return LambdaLR(optimizer, lr_lambda=multiplier)
 
 
+def _display_path(path: Path) -> str:
+    try:
+        return str(relative_to_repository(path))
+    except HelixPathError:
+        return str(path)
+
+
+def _resolve_configured_path(value: object, *, description: str) -> Path:
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"{description} must be a non-empty path")
+    path = Path(value).expanduser()
+    if path.is_absolute():
+        return path.resolve()
+    return resolve_repository_path(path)
+
+
+def _file_sha256(path: Path, *, description: str) -> str:
+    if not path.is_file():
+        raise FileNotFoundError(f"{description} does not exist: {path}")
+    digest = sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _file_identity(path: Path, *, description: str) -> dict[str, str]:
+    resolved_path = path.expanduser().resolve()
+    return {
+        "path": _display_path(resolved_path),
+        "sha256": _file_sha256(resolved_path, description=description),
+    }
+
+
+def _dataset_identity(config: TrainingConfig) -> dict[str, object]:
+    return {
+        "train": [
+            _file_identity(path, description="Training dataset") for path in config.data.train_paths
+        ],
+        "validation": [
+            _file_identity(path, description="Validation dataset")
+            for path in config.data.validation_paths
+        ],
+    }
+
+
+def _tokenizer_identity(config: TrainingConfig) -> dict[str, str]:
+    model_values = load_mapping(config.model_config_path, description="model config")
+    tokenizer_config_path = _resolve_configured_path(
+        model_values.get("tokenizer_config"),
+        description="Model config field 'tokenizer_config'",
+    )
+    tokenizer_values = load_mapping(tokenizer_config_path, description="tokenizer config")
+    artifacts_path = _resolve_configured_path(
+        tokenizer_values.get("artifacts_path"),
+        description="Tokenizer config field 'artifacts_path'",
+    )
+    tokenizer_file = tokenizer_values.get("tokenizer_file")
+    if not isinstance(tokenizer_file, str) or not tokenizer_file:
+        raise ValueError("Tokenizer config field 'tokenizer_file' must be a non-empty string")
+    tokenizer_artifact_path = (artifacts_path / tokenizer_file).resolve()
+    return {
+        "config_path": _display_path(tokenizer_config_path),
+        "artifact_path": _display_path(tokenizer_artifact_path),
+        "artifact_sha256": _file_sha256(
+            tokenizer_artifact_path,
+            description="Tokenizer artifact",
+        ),
+    }
+
+
+def _checkpoint_config_with_resume_metadata(
+    checkpoint_config: dict[str, object],
+    config: TrainingConfig,
+) -> dict[str, object]:
+    updated_config: dict[str, object] = deepcopy(checkpoint_config)
+    updated_config["tokenizer_identity"] = _tokenizer_identity(config)
+    updated_config["dataset_identity"] = _dataset_identity(config)
+    return updated_config
+
+
 class Trainer:
     """Train, evaluate, checkpoint, and resume one model process."""
 
@@ -87,7 +173,10 @@ class Trainer:
         self.model = model.to(device)
         self.data_loaders = data_loaders
         self.config = config
-        self.checkpoint_config = checkpoint_config
+        self.checkpoint_config = _checkpoint_config_with_resume_metadata(
+            checkpoint_config,
+            config,
+        )
         self.device = device
         self.logger = logger if logger is not None else LOGGER
         self.optimizer = AdamW(
@@ -111,6 +200,7 @@ class Trainer:
             optimizer=self.optimizer,
             scheduler=self.scheduler,
             map_location=self.device,
+            expected_config=self.checkpoint_config,
         )
         if state.global_step > self.config.loop.max_steps:
             raise ValueError(

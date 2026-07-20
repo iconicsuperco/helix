@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import random
 import shutil
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -16,6 +17,37 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 
 CHECKPOINT_VERSION = 1
+MISSING_CONFIG_VALUE = "<missing>"
+RESUME_COMPATIBILITY_FIELDS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("model.n_layer", ("model", "n_layer")),
+    ("model.n_head", ("model", "n_head")),
+    ("model.n_embd", ("model", "n_embd")),
+    ("model.block_size", ("model", "block_size")),
+    ("model.dropout", ("model", "dropout")),
+    ("model.vocab_size", ("model", "vocab_size")),
+    ("training.data.validation_fraction", ("training", "data", "validation_fraction")),
+    ("training.data.context_length", ("training", "data", "context_length")),
+    ("training.data.append_eos", ("training", "data", "append_eos")),
+    ("training.loader.batch_size", ("training", "loader", "batch_size")),
+    ("training.loader.shuffle", ("training", "loader", "shuffle")),
+    ("training.loader.drop_last", ("training", "loader", "drop_last")),
+    ("training.optimizer.learning_rate", ("training", "optimizer", "learning_rate")),
+    ("training.optimizer.min_learning_rate", ("training", "optimizer", "min_learning_rate")),
+    ("training.optimizer.weight_decay", ("training", "optimizer", "weight_decay")),
+    ("training.optimizer.beta1", ("training", "optimizer", "beta1")),
+    ("training.optimizer.beta2", ("training", "optimizer", "beta2")),
+    (
+        "training.optimizer.gradient_clip_norm",
+        ("training", "optimizer", "gradient_clip_norm"),
+    ),
+    ("training.loop.seed", ("training", "loop", "seed")),
+    ("training.loop.deterministic", ("training", "loop", "deterministic")),
+    ("training.loop.max_steps", ("training", "loop", "max_steps")),
+    ("training.loop.warmup_steps", ("training", "loop", "warmup_steps")),
+    ("tokenizer_identity.artifact_sha256", ("tokenizer_identity", "artifact_sha256")),
+    ("dataset_identity.train", ("dataset_identity", "train")),
+    ("dataset_identity.validation", ("dataset_identity", "validation")),
+)
 
 
 @dataclass(frozen=True)
@@ -26,6 +58,15 @@ class ResumeState:
     data_epoch: int
     batches_consumed: int
     config: dict[str, object]
+
+
+@dataclass(frozen=True)
+class ResumeConfigMismatch:
+    """One incompatible resume configuration field."""
+
+    field: str
+    previous: object
+    current: object
 
 
 def capture_rng_state() -> dict[str, object]:
@@ -41,6 +82,56 @@ def capture_rng_state() -> dict[str, object]:
     if torch.backends.mps.is_available():
         state["torch_mps"] = torch.mps.get_rng_state()
     return state
+
+
+def _nested_value(config: dict[str, object], path: Sequence[str]) -> object:
+    current: object = config
+    for key in path:
+        if not isinstance(current, dict) or key not in current:
+            return MISSING_CONFIG_VALUE
+        current = current[key]
+    return current
+
+
+def collect_resume_config_mismatches(
+    previous_config: dict[str, object],
+    current_config: dict[str, object],
+) -> list[ResumeConfigMismatch]:
+    """Return all correctness-affecting resume configuration mismatches."""
+
+    mismatches: list[ResumeConfigMismatch] = []
+    for field_name, path in RESUME_COMPATIBILITY_FIELDS:
+        previous_value = _nested_value(previous_config, path)
+        current_value = _nested_value(current_config, path)
+        if previous_value != current_value:
+            mismatches.append(
+                ResumeConfigMismatch(
+                    field=field_name,
+                    previous=previous_value,
+                    current=current_value,
+                )
+            )
+    return mismatches
+
+
+def _format_resume_config_mismatch(mismatches: Sequence[ResumeConfigMismatch]) -> str:
+    lines = ["Checkpoint configuration is incompatible with current training configuration:"]
+    lines.extend(
+        f"- {mismatch.field}: previous={mismatch.previous!r}; current={mismatch.current!r}"
+        for mismatch in mismatches
+    )
+    return "\n".join(lines)
+
+
+def validate_resume_config(
+    previous_config: dict[str, object],
+    current_config: dict[str, object],
+) -> None:
+    """Raise if a checkpoint cannot safely resume with the current configuration."""
+
+    mismatches = collect_resume_config_mismatches(previous_config, current_config)
+    if mismatches:
+        raise ValueError(_format_resume_config_mismatch(mismatches))
 
 
 def restore_rng_state(state: dict[str, object]) -> None:
@@ -178,6 +269,7 @@ def load_checkpoint(
     optimizer: Optimizer,
     scheduler: LRScheduler,
     map_location: torch.device,
+    expected_config: dict[str, object] | None = None,
 ) -> ResumeState:
     """Load model, optimizer, scheduler, counters, config, and all RNG state."""
 
@@ -194,10 +286,13 @@ def load_checkpoint(
             f"Unsupported checkpoint version {version!r}; expected {CHECKPOINT_VERSION}"
         )
 
+    config = _require_mapping(payload, "config")
+    if expected_config is not None:
+        validate_resume_config(config, expected_config)
+
     model_state = _require_mapping(payload, "model_state")
     optimizer_state = _require_mapping(payload, "optimizer_state")
     scheduler_state = _require_mapping(payload, "scheduler_state")
-    config = _require_mapping(payload, "config")
     data_state = _require_mapping(payload, "data_state")
     rng_state = _require_mapping(payload, "rng_state")
 

@@ -54,6 +54,8 @@ Every checkpoint contains:
 - optimizer state
 - scheduler state
 - resolved training and model configuration
+- tokenizer artifact identity
+- training and validation dataset file identities
 - global step
 - data epoch and consumed-batch position
 - Python, NumPy, PyTorch, and available CUDA/MPS RNG state
@@ -61,8 +63,8 @@ Every checkpoint contains:
 Numbered checkpoints and `latest.pt` are written atomically beneath the configured directory.
 Checkpoint files are intentionally ignored by git.
 
-To resume, set the training configuration to a checkpoint and make sure `max_steps` is larger
-than its saved global step:
+To resume, set the training configuration to a checkpoint while keeping compatibility-affecting
+configuration values the same as the checkpointed run:
 
 ```yaml
 checkpoint:
@@ -75,6 +77,20 @@ Then run the same entry point:
 ```bash
 python train.py
 ```
+
+Before restoring model, optimizer, scheduler, or RNG state, Forge validates that the
+checkpoint configuration is compatible with the current run. Compatibility includes model
+dimensions and dropout, optimizer settings, dataset identity, tokenizer artifact identity,
+batch-shaping settings, data-order settings, and scheduler-shaping loop settings. Cosmetic
+and operational fields such as logging configuration, device selection, worker count, pin
+memory, and checkpoint cadence are not part of compatibility validation.
+
+If any validated field differs, resume fails before training continues. The error lists every
+mismatched field with the previous checkpoint value and the current value.
+
+Checkpoint format note: M2 adds tokenizer artifact SHA-256 and dataset file SHA-256 metadata
+inside the saved checkpoint configuration. No repository legacy checkpoints existed when this
+validation was introduced.
 
 Only load checkpoints produced by a trusted Helix run. Complete optimizer and RNG restoration
 requires Python object deserialization and is not intended for untrusted artifacts.
