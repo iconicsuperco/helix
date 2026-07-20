@@ -11,7 +11,7 @@
   "content_hash": "bc1a181e166a877841874cb8edf81b8b3af6e858b4c49ed276d1ef0d44c2772b",
   "corpus_name": "gutenberg-moby-dick",
   "current_version": "pg15-2026-01-10",
-  "dataset_id": "gutenberg-moby-dick-pg15",
+  "dataset_id": "gutenberg-moby-dick",
   "display_name": "Project Gutenberg Moby-Dick",
   "fallback_sources": [],
   "license": "Project Gutenberg License; verify status in the deployment jurisdiction.",
