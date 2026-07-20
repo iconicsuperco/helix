@@ -31,6 +31,23 @@ Use either explicit `validation_paths` with `validation_fraction: 0.0`, or omit 
 paths and set a fraction in `(0.0, 1.0)`. Fractional splits shuffle blank-line-separated
 documents with the configured seed before tokenization.
 
+## Dataset Provenance
+
+The checked-in tokenizer-training splits are documented in
+`datasets/manifests/gutenberg-moby-dick.json`. M3a restructures that manifest under
+ADR-003 with a stable dataset identity, an explicit raw dataset version, verified raw
+retrieval metadata, raw SHA-256, UTF-8 encoding, and processed-output lineage back to the
+verified raw bytes.
+
+The current processed splits verify against Project Gutenberg eBook #15 as retrieved on
+2026-07-20. Project Gutenberg eBook #2701 was also reachable during M3a verification, but
+the existing deterministic preparation algorithm produced different train and held-out
+outputs from those bytes. ADR-004 therefore remains a proposed future corpus decision and
+is not adopted by the current manifest.
+
+Raw corpus files remain gitignored; the manifest records the expected local path and the
+checksum required to verify a local copy.
+
 ## Metrics
 
 Forge emits structured log records through `helix.common.logging`. Training metric records

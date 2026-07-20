@@ -1,16 +1,33 @@
 {
+  "canonical_source": {
+    "catalog_url": "https://www.gutenberg.org/ebooks/15",
+    "content_type": "text/plain; charset=utf-8",
+    "http_status": 200,
+    "retrieval_method": "curl -L --fail --silent --show-error --output /tmp/helix-pg15.txt https://www.gutenberg.org/cache/epub/15/pg15.txt",
+    "retrieved_at": "2026-07-20T06:42:22Z",
+    "selection_rationale": "Retained for the current checked-in processed corpus because the previous manifest identified Project Gutenberg eBook #15 and a live retrieval of pg15.txt exactly regenerates the committed train and held-out files with the existing preparation algorithm.",
+    "url": "https://www.gutenberg.org/cache/epub/15/pg15.txt"
+  },
   "content_hash": "bc1a181e166a877841874cb8edf81b8b3af6e858b4c49ed276d1ef0d44c2772b",
   "corpus_name": "gutenberg-moby-dick",
-  "license": "Public domain in the USA; verify status in the deployment jurisdiction.",
+  "current_version": "pg15-2026-01-10",
+  "dataset_id": "gutenberg-moby-dick-pg15",
+  "display_name": "Project Gutenberg Moby-Dick",
+  "fallback_sources": [],
+  "license": "Project Gutenberg License; verify status in the deployment jurisdiction.",
   "placeholder_corpus": true,
   "processed_date": "2026-07-18",
   "processed_outputs": {
     "heldout": {
+      "derived_from_raw_sha256": "cca79713fb2eb809daa7da6538018a0190a57d661b59f3a2b68ce4e137bbf8fc",
+      "derived_from_raw_version": "pg15-2026-01-10",
       "path": "datasets/processed/tokenizer-training/heldout.txt",
       "sha256": "6e5a61a28f1cf81606f0499bdd069a9bf5f1d59a8e5fa2ac3b89280a9a1ae4d9",
       "unique_line_count": 1967
     },
     "training": {
+      "derived_from_raw_sha256": "cca79713fb2eb809daa7da6538018a0190a57d661b59f3a2b68ce4e137bbf8fc",
+      "derived_from_raw_version": "pg15-2026-01-10",
       "path": "datasets/processed/tokenizer-training/train.txt",
       "sha256": "bc1a181e166a877841874cb8edf81b8b3af6e858b4c49ed276d1ef0d44c2772b",
       "unique_line_count": 17535
@@ -23,10 +40,28 @@
     ],
     "exact_duplicate_lines_removed": true,
     "heldout_assignment": "sha256-line-hash",
-    "heldout_fraction": 0.1
+    "heldout_fraction": 0.1,
+    "procedure": "research/tokenizer/prepare_corpus.py"
+  },
+  "raw": {
+    "byte_count": 1296752,
+    "encoding": "utf-8",
+    "expected_path": "datasets/raw/gutenberg-moby-dick/moby-dick.txt",
+    "gitignored": true,
+    "sha256": "cca79713fb2eb809daa7da6538018a0190a57d661b59f3a2b68ce4e137bbf8fc",
+    "upstream_metadata": {
+      "author": "Herman Melville",
+      "ebook_number": 15,
+      "language": "English",
+      "last_updated": "2026-01-10",
+      "release_date": "1991-05-01",
+      "title": "Moby-Dick; or, The Whale"
+    },
+    "version": "pg15-2026-01-10"
   },
   "raw_files": [
     "datasets/raw/gutenberg-moby-dick/moby-dick.txt"
   ],
+  "schema_version": 1,
   "source": "https://www.gutenberg.org/ebooks/15"
 }
