@@ -8,6 +8,7 @@ from typing import cast
 import pytest
 import yaml
 
+from helix.common.config import load_mapping
 from helix.common.exceptions import HelixConfigurationError
 from research.training.config import DEFAULT_CONFIG_PATH, load_training_config
 
@@ -23,8 +24,7 @@ def test_default_forge_config_loads() -> None:
 
 
 def test_config_rejects_ambiguous_validation_sources(tmp_path: Path) -> None:
-    loaded = yaml.safe_load(DEFAULT_CONFIG_PATH.read_text(encoding="utf-8"))
-    values = cast(dict[str, object], loaded)
+    values = load_mapping(DEFAULT_CONFIG_PATH, description="training config")
     data_values = cast(dict[str, object], values["data"])
     data_values["validation_fraction"] = 0.1
     path = tmp_path / "ambiguous.yaml"

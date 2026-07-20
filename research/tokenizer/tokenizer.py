@@ -6,8 +6,10 @@ import os
 from pathlib import Path
 from typing import cast
 
-import yaml
 from tokenizers import Tokenizer
+
+from helix.common.config import load_mapping
+from helix.common.exceptions import HelixConfigurationError
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_ENVIRONMENT_VARIABLE = "HELIX_TOKENIZER_CONFIG"
@@ -24,14 +26,18 @@ def _config_path() -> Path:
 def _artifact_path() -> Path:
     config_path = _config_path()
     try:
-        loaded = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    except OSError as error:
-        raise OSError(f"Unable to read tokenizer config at {config_path}") from error
-    except yaml.YAMLError as error:
-        raise ValueError(f"Invalid YAML in tokenizer config at {config_path}") from error
-    if not isinstance(loaded, dict):
-        raise ValueError(f"Tokenizer config at {config_path} must be a mapping")
-    values = cast(dict[str, object], loaded)
+        values = load_mapping(
+            config_path,
+            description="tokenizer config",
+            file_format="yaml",
+        )
+    except HelixConfigurationError as error:
+        cause = error.__cause__
+        if isinstance(cause, OSError):
+            raise OSError(str(error)) from cause
+        if cause is not None:
+            raise ValueError(f"Invalid YAML in tokenizer config at {config_path}") from cause
+        raise ValueError(str(error)) from error
     artifacts_path = values.get("artifacts_path")
     tokenizer_file = values.get("tokenizer_file")
     if not isinstance(artifacts_path, str) or not artifacts_path:

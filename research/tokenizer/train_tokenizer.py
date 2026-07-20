@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib
-import json
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -14,7 +13,6 @@ from pathlib import Path
 from typing import cast
 
 import tokenizers
-import yaml
 from tokenizers import (
     Tokenizer,
     decoders,
@@ -24,6 +22,8 @@ from tokenizers import (
     trainers,
 )
 
+from helix.common.config import ConfigFileFormat, load_mapping
+from helix.common.exceptions import HelixConfigurationError
 from helix.common.logging import configure_logging, get_logger
 
 LOGGER = get_logger(__name__)
@@ -61,18 +61,16 @@ def _configure_logging() -> None:
 
 
 def _load_mapping(path: Path, description: str) -> dict[str, object]:
+    file_format: ConfigFileFormat = "yaml" if path.suffix in {".yaml", ".yml"} else "json"
     try:
-        if path.suffix in {".yaml", ".yml"}:
-            loaded = yaml.safe_load(path.read_text(encoding="utf-8"))
-        else:
-            loaded = json.loads(path.read_text(encoding="utf-8"))
-    except OSError as error:
-        raise OSError(f"Unable to read {description} at {path}") from error
-    except (json.JSONDecodeError, yaml.YAMLError) as error:
-        raise ValueError(f"Invalid {description} at {path}") from error
-    if not isinstance(loaded, dict):
-        raise ValueError(f"{description.capitalize()} at {path} must be a mapping")
-    return cast(dict[str, object], loaded)
+        return load_mapping(path, description=description, file_format=file_format)
+    except HelixConfigurationError as error:
+        cause = error.__cause__
+        if isinstance(cause, OSError):
+            raise OSError(str(error)) from cause
+        if cause is not None:
+            raise ValueError(f"Invalid {description} at {path}") from cause
+        raise ValueError(str(error)) from error
 
 
 def _required_str(values: dict[str, object], key: str) -> str:

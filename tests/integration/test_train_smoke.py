@@ -11,6 +11,8 @@ from tempfile import TemporaryDirectory
 
 import yaml
 
+from helix.common.config import load_mapping
+
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 SMOKE_CONFIG_PATH = Path("config/training/smoke.yaml")
 WORKSPACE_DIRECTORIES = ("config", "datasets", "helix", "research")
@@ -71,8 +73,7 @@ def test_train_smoke_creates_checkpoint_and_resumes() -> None:
         assert checkpoint_path.is_file()
 
         smoke_config_path = workspace / SMOKE_CONFIG_PATH
-        smoke_config = yaml.safe_load(smoke_config_path.read_text(encoding="utf-8"))
-        assert isinstance(smoke_config, dict)
+        smoke_config = load_mapping(smoke_config_path, description="training config")
         checkpoint_config = smoke_config.get("checkpoint")
         assert isinstance(checkpoint_config, dict)
         checkpoint_config["resume_from"] = "checkpoints/smoke/latest.pt"

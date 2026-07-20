@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import cast
 
-import yaml
+from helix.common.config import load_mapping
+from helix.common.exceptions import HelixConfigurationError
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG_PATH = REPOSITORY_ROOT / "config" / "model" / "transformer.yaml"
@@ -28,14 +28,14 @@ def _load_mapping(path: Path, description: str) -> dict[str, object]:
     """Read one YAML mapping and add context to parsing and I/O failures."""
 
     try:
-        loaded = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except OSError as error:
-        raise OSError(f"Unable to read {description} at {path}") from error
-    except yaml.YAMLError as error:
-        raise ValueError(f"Invalid YAML in {description} at {path}") from error
-    if not isinstance(loaded, dict):
-        raise ValueError(f"{description.capitalize()} at {path} must be a mapping")
-    return cast(dict[str, object], loaded)
+        return load_mapping(path, description=description, file_format="yaml")
+    except HelixConfigurationError as error:
+        cause = error.__cause__
+        if isinstance(cause, OSError):
+            raise OSError(str(error)) from cause
+        if cause is not None:
+            raise ValueError(f"Invalid YAML in {description} at {path}") from cause
+        raise ValueError(str(error)) from error
 
 
 def _required_positive_int(values: dict[str, object], key: str) -> int:

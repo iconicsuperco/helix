@@ -9,10 +9,9 @@ import unicodedata
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import cast
 
-import yaml
-
+from helix.common.config import load_mapping
+from helix.common.exceptions import HelixConfigurationError
 from helix.common.logging import configure_logging, get_logger
 
 LOGGER = get_logger(__name__)
@@ -43,14 +42,18 @@ def _configure_logging() -> None:
 
 def _load_mapping(config_path: Path) -> dict[str, object]:
     try:
-        loaded = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    except OSError as error:
-        raise OSError(f"Unable to read tokenizer config at {config_path}") from error
-    except yaml.YAMLError as error:
-        raise ValueError(f"Invalid YAML in tokenizer config at {config_path}") from error
-    if not isinstance(loaded, dict):
-        raise ValueError(f"Tokenizer config at {config_path} must be a mapping")
-    return cast(dict[str, object], loaded)
+        return load_mapping(
+            config_path,
+            description="tokenizer config",
+            file_format="yaml",
+        )
+    except HelixConfigurationError as error:
+        cause = error.__cause__
+        if isinstance(cause, OSError):
+            raise OSError(str(error)) from cause
+        if cause is not None:
+            raise ValueError(f"Invalid YAML in tokenizer config at {config_path}") from cause
+        raise ValueError(str(error)) from error
 
 
 def _required_str(values: dict[str, object], key: str) -> str:

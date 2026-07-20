@@ -5,8 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import cast
 
-import yaml
-
+from helix.common.config import load_mapping
 from research.tokenizer.tokenizer import decode, encode, encode_batch
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
@@ -30,10 +29,7 @@ ALL_TEST_TEXTS = PLAIN_TEXTS + UNICODE_TEXTS + CODE_TEXTS + EDGE_TEXTS
 
 
 def _tokenizer_config() -> dict[str, object]:
-    loaded = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8"))
-    if not isinstance(loaded, dict):
-        raise AssertionError("Tokenizer config must be a mapping")
-    return cast(dict[str, object], loaded)
+    return load_mapping(CONFIG_PATH, description="tokenizer config")
 
 
 def _configured_special_tokens() -> list[str]:

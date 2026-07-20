@@ -25,6 +25,13 @@ def test_load_mapping_reads_yaml_mapping(tmp_path: Path) -> None:
     assert load_mapping(path)["answer"] == 42
 
 
+def test_load_mapping_honors_explicit_format_for_nonstandard_extension(tmp_path: Path) -> None:
+    path = tmp_path / "sample.config"
+    path.write_text('{"answer": 42}\n', encoding="utf-8")
+
+    assert load_mapping(path, file_format="json")["answer"] == 42
+
+
 def test_load_mapping_rejects_non_mapping(tmp_path: Path) -> None:
     path = tmp_path / "sample.yaml"
     path.write_text("- one\n- two\n", encoding="utf-8")

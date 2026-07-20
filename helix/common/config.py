@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import cast
+from typing import Literal, cast
 
 import yaml
 
@@ -12,21 +12,33 @@ from helix.common.exceptions import HelixConfigurationError
 from helix.common.paths import PathInput, config_root, resolve_repository_path
 
 CONFIG_SECTIONS = frozenset({"model", "training", "tokenizer", "inference", "evaluation"})
+ConfigFileFormat = Literal["json", "yaml"]
 
 
-def load_mapping(path: PathInput, *, description: str = "config") -> dict[str, object]:
+def load_mapping(
+    path: PathInput,
+    *,
+    description: str = "config",
+    file_format: ConfigFileFormat | None = None,
+) -> dict[str, object]:
     """Load a YAML or JSON mapping from disk with contextual errors."""
 
     resolved_path = Path(path).expanduser().resolve()
-    try:
+    selected_format = file_format
+    if selected_format is None:
         if resolved_path.suffix in {".yaml", ".yml"}:
-            loaded = yaml.safe_load(resolved_path.read_text(encoding="utf-8"))
+            selected_format = "yaml"
         elif resolved_path.suffix == ".json":
-            loaded = json.loads(resolved_path.read_text(encoding="utf-8"))
+            selected_format = "json"
         else:
             raise HelixConfigurationError(
                 f"Unsupported {description} extension for {resolved_path}; expected YAML or JSON"
             )
+    try:
+        if selected_format == "yaml":
+            loaded = yaml.safe_load(resolved_path.read_text(encoding="utf-8"))
+        else:
+            loaded = json.loads(resolved_path.read_text(encoding="utf-8"))
     except OSError as error:
         raise HelixConfigurationError(f"Unable to read {description} at {resolved_path}") from error
     except (json.JSONDecodeError, yaml.YAMLError) as error:

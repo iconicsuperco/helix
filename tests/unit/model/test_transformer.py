@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 import torch
 import torch.nn.functional as functional
 import yaml
@@ -73,6 +74,14 @@ def _expected_parameter_count(config: TransformerConfig) -> int:
     final_layer_norm_parameters = 2 * config.n_embd
     block_parameters = attention_parameters + mlp_parameters + block_layer_norm_parameters
     return embedding_parameters + config.n_layer * block_parameters + final_layer_norm_parameters
+
+
+def test_config_loader_preserves_invalid_yaml_error(tmp_path: Path) -> None:
+    config_path = tmp_path / "invalid.yaml"
+    config_path.write_text("[invalid\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Invalid YAML in transformer config"):
+        load_config(config_path)
 
 
 def _overfit_batch() -> torch.Tensor:
