@@ -14,7 +14,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import LambdaLR
 
 from helix.common.seed import set_global_seed
-from research.training.checkpoint import load_checkpoint, save_checkpoint
+from research.training.checkpoint import load_checkpoint, load_model_checkpoint, save_checkpoint
 
 
 class _UnsupportedCheckpointValue:
@@ -60,6 +60,14 @@ def test_checkpoint_restores_training_and_rng_state(tmp_path: Path) -> None:
     expected_python = random.random()
     expected_numpy = float(np.random.random())
     expected_torch = torch.rand(2)
+
+    model_checkpoint = load_model_checkpoint(
+        checkpoint_path,
+        map_location=torch.device("cpu"),
+    )
+    assert model_checkpoint.global_step == 7
+    assert model_checkpoint.config == checkpoint_config
+    assert set(model_checkpoint.model_state) == set(expected_parameters)
 
     restored_model = nn.Linear(3, 2)
     restored_optimizer = AdamW(restored_model.parameters(), lr=0.5)

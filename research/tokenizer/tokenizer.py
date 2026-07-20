@@ -62,6 +62,12 @@ def _get_tokenizer() -> Tokenizer:
     return _tokenizer
 
 
+def tokenizer_artifact_path() -> Path:
+    """Return the tokenizer artifact selected by the active tokenizer config."""
+
+    return _artifact_path()
+
+
 def encode(text: str) -> list[int]:
     """Encode one string without automatically adding special tokens."""
 

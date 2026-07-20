@@ -66,7 +66,7 @@ line-ending = "lf"
 
 [tool.mypy]
 python_version = "3.11"
-files = ["helix", "research", "tests", "train.py"]
+files = ["helix", "research", "tests", "train.py", "infer.py"]
 namespace_packages = true
 explicit_package_bases = true
 no_site_packages = true

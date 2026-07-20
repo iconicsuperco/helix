@@ -67,6 +67,15 @@ class ResumeState:
 
 
 @dataclass(frozen=True)
+class ModelCheckpointState:
+    """Model parameters and metadata needed outside training resume."""
+
+    model_state: dict[str, object]
+    config: dict[str, object]
+    global_step: int
+
+
+@dataclass(frozen=True)
 class ResumeConfigMismatch:
     """One incompatible resume configuration field."""
 
@@ -268,6 +277,33 @@ def _require_nonnegative_int(payload: dict[str, object], key: str) -> int:
     return value
 
 
+def _load_checkpoint_payload(path: Path, map_location: torch.device) -> dict[str, object]:
+    if not path.is_file():
+        raise FileNotFoundError(f"Checkpoint does not exist: {path}")
+    with torch.serialization.safe_globals(list(_SAFE_CHECKPOINT_GLOBALS)):
+        loaded = torch.load(path, map_location=map_location, weights_only=True)
+    if not isinstance(loaded, dict):
+        raise ValueError(f"Checkpoint at {path} must contain a mapping")
+    payload = cast(dict[str, object], loaded)
+    version = payload.get("version")
+    if version != CHECKPOINT_VERSION:
+        raise ValueError(
+            f"Unsupported checkpoint version {version!r}; expected {CHECKPOINT_VERSION}"
+        )
+    return payload
+
+
+def load_model_checkpoint(path: Path, *, map_location: torch.device) -> ModelCheckpointState:
+    """Safely load model parameters and checkpoint metadata without training state restore."""
+
+    payload = _load_checkpoint_payload(path, map_location)
+    return ModelCheckpointState(
+        model_state=_require_mapping(payload, "model_state"),
+        config=_require_mapping(payload, "config"),
+        global_step=_require_nonnegative_int(payload, "global_step"),
+    )
+
+
 def load_checkpoint(
     path: Path,
     *,
@@ -279,20 +315,7 @@ def load_checkpoint(
 ) -> ResumeState:
     """Load model, optimizer, scheduler, counters, config, and all RNG state."""
 
-    if not path.is_file():
-        raise FileNotFoundError(f"Checkpoint does not exist: {path}")
-    with torch.serialization.safe_globals(list(_SAFE_CHECKPOINT_GLOBALS)):
-        loaded = torch.load(path, map_location=map_location, weights_only=True)
-    if not isinstance(loaded, dict):
-        raise ValueError(f"Checkpoint at {path} must contain a mapping")
-    payload = cast(dict[str, object], loaded)
-
-    version = payload.get("version")
-    if version != CHECKPOINT_VERSION:
-        raise ValueError(
-            f"Unsupported checkpoint version {version!r}; expected {CHECKPOINT_VERSION}"
-        )
-
+    payload = _load_checkpoint_payload(path, map_location)
     config = _require_mapping(payload, "config")
     if expected_config is not None:
         validate_resume_config(config, expected_config)
