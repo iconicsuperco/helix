@@ -27,3 +27,12 @@ latest model block when the growing sequence exceeds the configured context wind
 Checkpoint loading reuses the M4 `weights_only=True` safe-loading path. Inference rejects a
 checkpoint if its recorded tokenizer artifact SHA-256 does not match the tokenizer selected by
 the active `HELIX_TOKENIZER_CONFIG` configuration.
+
+Run the train-to-inference integration smoke test with:
+
+```bash
+uv run pytest tests/integration/test_infer_smoke.py
+```
+
+The current path is intentionally minimal: greedy decoding only, with no KV cache, sampling,
+serving API, or platform integration.

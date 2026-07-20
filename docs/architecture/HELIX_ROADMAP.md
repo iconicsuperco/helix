@@ -8,6 +8,17 @@
 
 ---
 
+## Current Repository Status
+
+- A1 Tokenizer, A2 Tiny Transformer, and A3 Training Pipeline are implemented.
+- The current default transformer has 16,889,856 parameters.
+- M8 provides local greedy generation from Forge checkpoints; it is a research CLI, not the
+  Track B `ModelProvider` integration.
+- A4 is the next Track A research milestone. A5-A7 and all Track B milestones remain
+  unimplemented.
+
+---
+
 ## Track A — Core AI Research
 
 Goal: a real, understood, owned model lineage — small, honest, and yours.
@@ -17,20 +28,20 @@ Goal: a real, understood, owned model lineage — small, honest, and yours.
 - Decide compute budget up front: single consumer GPU / rented cloud GPU (A10/A100 spot) / Apple Silicon MPS. This budget determines every other decision below — set it before A1.
 - Acceptance criteria: you can explain, without notes, what a tokenizer, embedding, attention head, and training loop each do.
 
-### A1. Tokenizer
+### A1. Tokenizer (Implemented)
 - Train a custom BPE tokenizer (small vocab, 8k–32k) on a modest, clearly-licensed corpus.
 - Deliverable: reproducible tokenizer training script + vocab artifact + round-trip encode/decode tests.
 
-### A2. Tiny Transformer (Helix v0.1)
+### A2. Tiny Transformer (Helix v0.1, Implemented)
 - Decoder-only transformer, small (10M–125M params depending on A0 budget).
 - Built from scratch in PyTorch — this is the whole point, don't import a pretrained backbone here.
 - Deliverable: model architecture code, config-driven (layers/heads/dim are parameters, not hardcoded).
 
-### A3. Training Pipeline
-- Data loading, checkpointing, logging (loss curves, sample generations every N steps), resumability.
+### A3. Training Pipeline (Implemented)
+- Data loading, checkpointing, structured training/validation metrics, and resumability.
 - Deliverable: a training run that completes without babysitting and produces a checkpoint + metrics.
 
-### A4. Base Model — First Real Checkpoint
+### A4. Base Model — First Real Checkpoint (Next)
 - Train on your chosen corpus until loss plateaus at your compute budget.
 - Acceptance criteria: model produces *coherent local grammar* — not necessarily correct facts. This is v0.1's actual bar.
 
@@ -77,6 +88,7 @@ Goal: a real, usable web app, model-agnostic from day one.
 
 ---
 
-## Sequencing Recommendation
+## Current Sequencing
 
-Run A0–A2 and B1–B2 in parallel — they don't block each other and both are needed before anything interesting happens. Don't let platform work (which feels more "finished" faster) become an excuse to defer Track A indefinitely; that's the historical failure pattern to watch for here.
+A1-A3 are complete. A4 is the next Track A milestone, followed by the remaining Track A
+milestones above. Track B has not started in this repository.

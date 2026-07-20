@@ -8,7 +8,7 @@ existing A1 tokenizer and A2 decoder-only transformer without changing their alg
 Run the bounded CPU smoke profile:
 
 ```bash
-python train.py --config config/training/smoke.yaml
+uv run python train.py --config config/training/smoke.yaml
 ```
 
 This profile trains the tiny smoke transformer for 20 steps against the checked-in sample
@@ -24,15 +24,18 @@ workspace, so generated checkpoints and configuration changes are removed automa
 Run it locally with:
 
 ```bash
-uv run pytest tests/integration
+uv run pytest tests/integration/test_train_smoke.py
 ```
+
+The full integration directory also includes the train-to-inference smoke test documented in
+`docs/A3/INFERENCE.md`.
 
 ## Forge Run
 
 The default command loads `config/training/forge.yaml`:
 
 ```bash
-python train.py
+uv run python train.py
 ```
 
 The training YAML owns all run parameters: dataset paths, validation strategy, context
@@ -47,16 +50,15 @@ documents with the configured seed before tokenization.
 ## Dataset Provenance
 
 The checked-in tokenizer-training splits are documented in
-`datasets/manifests/gutenberg-moby-dick.json`. M3a restructures that manifest under
+`datasets/manifests/gutenberg-moby-dick.json`. M3a restructured that manifest under
 ADR-003 with a stable dataset identity, an explicit raw dataset version, verified raw
 retrieval metadata, raw SHA-256, UTF-8 encoding, and processed-output lineage back to the
 verified raw bytes.
 
 The current processed splits verify against Project Gutenberg eBook #15 as retrieved on
-2026-07-20. Project Gutenberg eBook #2701 was also reachable during M3a verification, but
-the existing deterministic preparation algorithm produced different train and held-out
-outputs from those bytes. ADR-004 therefore remains a proposed future corpus decision and
-is not adopted by the current manifest.
+2026-07-20. ADR-004 is Accepted and records that empirical regeneration identified eBook #15,
+not the earlier metadata-based #2701 candidate, as the source of the committed processed
+artifacts. The manifest remains the source of truth for implementation-specific provenance.
 
 Raw corpus files remain gitignored; the manifest records the expected local path and the
 checksum required to verify a local copy.
@@ -105,7 +107,7 @@ checkpoint:
 Then run the same entry point:
 
 ```bash
-python train.py
+uv run python train.py
 ```
 
 Before restoring model, optimizer, scheduler, or RNG state, Forge validates that the

@@ -1,6 +1,6 @@
 # Helix — Milestone A2: Tiny Transformer — Engineering Specification
 
-Track: A (Core AI Research) · Release: v0.1 · Status: Ready for implementation
+Track: A (Core AI Research) · Release: v0.1 · Status: Implemented
 Parent docs: HELIX_TDD.md (§2.5 Training Flow, §3 Repository Structure, §4 Stack) · HELIX_A1_TOKENIZER_SPEC.md (upstream dependency)
 Depends on: A1 (Tokenizer) — merged, PR #1.
 
@@ -17,7 +17,8 @@ Implement, from scratch in PyTorch, a decoder-only transformer language model �
 - Causal masking is verifiably correct: changing a future token never changes an earlier position's output.
 - Parameter count is computed and reported, and matches a hand-calculated expectation for the default config within a documented tolerance.
 - A "sanity overfit" test passes: the model can drive the loss on a single tiny fixed batch down to near-zero within a bounded number of gradient steps — this is the standard, minimal proof that gradients flow correctly through the whole architecture, independent of any real training run (which is A3's job).
-- The model consumes A1's tokenizer vocabulary (16,000 + reserved tokens) without modification to either component.
+- The model consumes A1's 16,000-entry tokenizer vocabulary, including its reserved tokens,
+  without modification to either component.
 
 ## 3. Scope
 
@@ -104,7 +105,7 @@ Stacking many such blocks lets the model build up increasingly abstract represen
 
 Learned absolute positional embeddings add a per-position learned vector to each token's embedding before the first transformer block, giving the model a way to distinguish "token at position 3" from "the same token at position 30." This is the simplest positional scheme to implement and verify correctly — it is literally one more embedding table, no additional math beyond addition.
 
-RoPE (rotary positional embeddings) rotates query/key vectors as a function of position instead of adding a learned vector, which gives better generalization to sequence lengths not seen during training and is the current default in most production-scale models. It's deferred to §16/A4: it is the *right long-term choice*, but adds a layer of "why does rotating vectors like this preserve relative-position information" that is not necessary to prove out the core architecture correctness this milestone is actually testing. Once A6's eval harness exists, swapping in RoPE and measuring the difference is exactly the kind of "measure, don't assume" comparison TDD §9.4 asks for.
+RoPE (rotary positional embeddings) rotates query/key vectors as a function of position instead of adding a learned vector, which gives better generalization to sequence lengths not seen during training and is the current default in most production-scale models. It's deferred to §16/A7: it is the *right long-term choice*, but adds a layer of "why does rotating vectors like this preserve relative-position information" that is not necessary to prove out the core architecture correctness this milestone is actually testing. Once A6's eval harness exists, swapping in RoPE and measuring the difference is exactly the kind of "measure, don't assume" comparison TDD §9.4 asks for.
 
 ## 11. Attention — The Explicit Formula (for understanding, even though a library call implements it)
 
@@ -120,13 +121,13 @@ where `causal_mask` sets all "future" positions (`j > i` for query position `i`)
 
 ## 12. Model Sizing — Default Config Trade-offs
 
-| Config | Approx. params (16k vocab) | Notes |
+| Config | Parameters (16k vocab) | Notes |
 |---|---|---|
-| `n_layer=4, n_head=4, n_embd=256, block_size=128` | ~7M | Faster to sanity-check on CPU; may underfit even the small placeholder corpus. |
-| `n_layer=6, n_head=6, n_embd=384, block_size=256` (chosen default) | ~13M | Matches TDD's "10–125M" range at the small end; short context length (256 tokens) is appropriate given the placeholder corpus's short lines (A1's held-out set had under 2,000 unique lines) — no reason to pay for a longer context the current corpus can't exercise. |
-| `n_layer=12, n_head=12, n_embd=768, block_size=1024` (GPT-2-small scale) | ~124M | Reserved for a later version once a real, larger training corpus exists (A2/A4 boundary) — training this on the current placeholder corpus would simply memorize it, which teaches nothing about the architecture. |
+| `n_layer=4, n_head=4, n_embd=256, block_size=128` | 7,288,320 (~7.3M) | Faster to sanity-check on CPU; may underfit even the small placeholder corpus. |
+| `n_layer=6, n_head=6, n_embd=384, block_size=256` (chosen default) | 16,889,856 (~16.9M) | Matches TDD's "10–125M" range at the small end; short context length (256 tokens) is appropriate given the placeholder corpus's short lines (A1's held-out set had under 2,000 unique lines) — no reason to pay for a longer context the current corpus can't exercise. |
+| `n_layer=12, n_head=12, n_embd=768, block_size=1024` (GPT-2-small width/depth) | 98,130,432 (~98.1M) | Reserved for a later version once a real, larger training corpus exists (A2/A4 boundary) — training this on the current placeholder corpus would simply memorize it, which teaches nothing about the architecture. |
 
-**Decision: the 13M-parameter default.** This is a config value, not a hardcoded constant — resizing for a future milestone is a one-line config change, not a code change (§14 test plan verifies this).
+**Decision: the 16,889,856-parameter default.** This is a config value, not a hardcoded constant — resizing for a future milestone is a one-line config change, not a code change (§14 test plan verifies this).
 
 ## 13. Special-Token / Vocabulary Integration
 
@@ -135,7 +136,7 @@ The model's embedding table size is exactly A1's configured `vocab_size` (16,000
 ## 14. Test Plan
 
 Unit tests in `tests/unit/model/test_transformer.py`:
-1. **Shape correctness:** for at least two different configs (the tiny 7M and the default 13M from §12), a forward pass on a random `(batch=2, seq_len=32)` input produces `(2, 32, vocab_size)` logits.
+1. **Shape correctness:** for at least two different configs (the 7.3M and 16.9M configs from §12), a forward pass on a random `(batch=2, seq_len=32)` input produces `(2, 32, vocab_size)` logits.
 2. **Causal-mask correctness:** run a forward pass, then change only the *last* token in the input and re-run; assert that logits at all positions *before* the last are bit-for-bit identical. This directly proves no future information leaks backward.
 3. **Parameter count:** compute total parameter count for the default config and assert it falls within ±5% of the hand-calculated estimate in §12 (accounting for weight tying).
 4. **Determinism:** with a fixed random seed, two freshly-constructed models with identical configs produce bit-identical initial weights and identical logits on the same input.
@@ -153,7 +154,7 @@ Unit tests in `tests/unit/model/test_transformer.py`:
 ## 16. Future Extensibility
 
 - RoPE or ALiBi positional encoding can replace the learned-embedding module without touching the attention/MLP blocks — the positional scheme is isolated to embedding + attention input, not threaded through the whole model.
-- KV-caching for fast autoregressive inference is a pure addition (an inference-time optimization) and doesn't change the trained weights or architecture — deferred until A3/inference work needs it.
+- KV-caching for fast autoregressive inference is a pure addition (an inference-time optimization) and doesn't change the trained weights or architecture. M8's minimal inference path works without it, so it remains a future optimization.
 - Longer `block_size` for larger future corpora is a config change; the architecture makes no assumption about context length beyond the positional embedding table's size.
 - Mixed precision / gradient checkpointing are A3 training-pipeline concerns, not architecture concerns — the model class defined here is precision-agnostic.
 

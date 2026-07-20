@@ -11,10 +11,22 @@ Current version: `0.1.0`
 - A2 Transformer: config-driven decoder-only transformer and architecture tests.
 - A2.5 Research Infrastructure: packaging, common utilities, quality gates, hooks, and CI.
 - A3 Forge: deterministic dataset pipeline, training engine, metrics, checkpointing, and resume.
+- M1 Dependency Locking: uv lockfile, frozen installs, and aligned contributor/CI workflows.
+- M2 Resume Compatibility: model, optimizer, tokenizer, dataset, batching, ordering, and
+  scheduler compatibility checks before checkpoint restoration.
+- M3 Dataset Provenance: stable dataset identity and verified Project Gutenberg eBook #15
+  provenance for the Moby-Dick corpus.
+- M4 Checkpoint Hardening: restricted `weights_only=True` checkpoint loading.
+- M5 Config Consolidation: YAML loading routed through `helix.common.config`.
+- M6 Documentation Accuracy: repository documentation synchronized with implemented behavior.
+- M7 Integration Smoke Test: subprocess training, checkpoint creation, and resume coverage.
+- M8 Minimal Inference: checkpoint-to-text greedy generation with tokenizer identity validation.
 
-## Current Milestone
+## Current Repository State
 
-- A3 Forge Training Pipeline. The implementation and bounded smoke run are complete.
+- The A3 training pipeline and M8 local inference path are implemented. The verified suite has
+  51 tests: 49 unit tests and 2 integration tests covering train/resume and train/inference.
+- The default transformer has 16,889,856 trainable parameters.
 
 ## Next Milestone
 
@@ -29,8 +41,8 @@ Current version: `0.1.0`
   backed by DVC or object storage.
 - The current tokenizer artifact is tracked for testability, but future artifact promotion
   needs a stricter release process.
-- Some legacy A1/A2 modules still contain local validation helpers that can migrate to
-  `helix.common` when the next milestone touches them.
+- YAML parsing is centralized in `helix.common.config`; domain-specific validation remains in
+  the tokenizer, model, and training configuration modules.
 - Forge currently tokenizes datasets eagerly in memory; A4-scale corpora will need streaming or
   memory-mapped token storage.
 - Training is single-process and full precision. Distributed execution, gradient accumulation,

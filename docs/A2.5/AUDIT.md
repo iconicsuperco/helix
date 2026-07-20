@@ -10,6 +10,12 @@ gaps before A2.5 were engineering foundations: missing project metadata, missing
 tooling, missing CI, local cache files in the working tree, duplicated configuration and
 logging helpers, and thin documentation.
 
+This report records the repository at the A2.5 milestone. As of M6 on 2026-07-20, its project
+metadata, quality tooling, CI, import, and documentation findings have been addressed. M5
+also routed all YAML loading through `helix.common.config`, resolving the configuration-loader
+portion of the duplicated-utilities and technical-debt findings. Domain-specific validation
+remains with each research subsystem.
+
 ## Findings
 
 | Area | Finding | Proposed fix | Risk |

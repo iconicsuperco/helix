@@ -1,6 +1,6 @@
 # Helix — Milestone A1: Tokenizer — Engineering Specification
 
-Track: A (Core AI Research) · Release: v0.1 · Status: Ready for implementation
+Track: A (Core AI Research) · Release: v0.1 · Status: Implemented
 Parent doc: HELIX_TDD.md (§2.5 Training Flow, §3 Repository Structure, §4 Stack)
 
 ---
