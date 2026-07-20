@@ -20,19 +20,16 @@ Current focus: **A3 - Forge Training Pipeline**.
 ## Setup
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -e ".[dev]"
+uv sync --frozen --extra dev
 ```
 
 ## Quality Gates
 
 ```bash
-ruff check .
-ruff format --check .
-mypy
-pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy
+uv run pytest
 ```
 
 The same gates run in GitHub Actions on every push and pull request.
@@ -57,13 +54,13 @@ git. Manifests and small baseline artifacts document the current reproducible st
 ## Useful Commands
 
 ```bash
-python -m research.tokenizer.prepare_corpus
-python -m research.tokenizer.train_tokenizer
-python train.py --config config/training/smoke.yaml
-python train.py
-pytest tests/unit/tokenizer
-pytest tests/unit/model
-pytest tests/unit/training
+uv run python -m research.tokenizer.prepare_corpus
+uv run python -m research.tokenizer.train_tokenizer
+uv run python train.py --config config/training/smoke.yaml
+uv run python train.py
+uv run pytest tests/unit/tokenizer
+uv run pytest tests/unit/model
+uv run pytest tests/unit/training
 ```
 
 ## Documentation

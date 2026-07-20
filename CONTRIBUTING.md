@@ -3,11 +3,8 @@
 ## Development Setup
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -e ".[dev]"
-pre-commit install
+uv sync --frozen --extra dev
+uv run pre-commit install
 ```
 
 ## Before Opening a PR
@@ -15,10 +12,10 @@ pre-commit install
 Run the same checks as CI:
 
 ```bash
-ruff check .
-ruff format --check .
-mypy
-pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy
+uv run pytest
 ```
 
 ## Engineering Rules
