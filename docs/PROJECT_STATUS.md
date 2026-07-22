@@ -26,6 +26,9 @@ Current version: `0.1.0`
 - R2 Dataset Expansion: verified Gutenberg *The Time Machine* onboarding, shared cleaning,
   reviewable within- and cross-source deduplication, a versioned Moby-Dick/Time Machine composite
   corpus, and a separately versioned composite-corpus tokenizer artifact.
+- R3 Model Scaling: complete; scaling outcome not yet justified. A 33,543,168-parameter model
+  improved in-corpus perplexity but did not improve out-of-corpus perplexity over the
+  16,889,856-parameter composite baseline.
 
 ## Current Repository State
 
@@ -35,12 +38,14 @@ Current version: `0.1.0`
   Gutenberg Alice's Adventures in Wonderland corpus out-of-corpus.
 - The R2 training composite contains the verified Moby-Dick and *The Time Machine* sources; Alice
   remains outside the training corpus for out-of-corpus evaluation.
+- R3 produced and evaluated distinct same-size composite-baseline and scaled checkpoint lineages;
+  the evidence and conclusion are recorded in `docs/research/R3-scaling-comparison.md`.
 - The verified suite has 82 tests: 78 unit tests and 4 integration tests.
 - The default transformer has 16,889,856 trainable parameters.
 
 ## Next Milestone
 
-- R3 Model Scaling. This canonical sequence supersedes the older A4-to-A6 ordering.
+- R3 is complete. Any later milestone requires a separately approved task.
 
 ## Known Technical Debt
 
