@@ -1,0 +1,28 @@
+{
+  "artifact": {
+    "byte_count": 1103997,
+    "path": "research/data/tokenizers/helix-gutenberg-prose-bpe-v1/tokenizer.json",
+    "sha256": "1af9f66318bfd8a547bc20a4adda652b272309ba01699be85e62d7277712bc8f"
+  },
+  "configuration": {
+    "path": "research/data/tokenizers/helix-gutenberg-prose-bpe-v1/tokenizer.yaml",
+    "sha256": "732f593a28d3352213ae6406c38cc62aa99c70c6508dc085d6e4b2f8aa3036da"
+  },
+  "corpus": {
+    "dataset_id": "helix-gutenberg-prose",
+    "dataset_version": "r2-v1-665a4ba254cf",
+    "heldout_sha256": "9c4c01ae1950742d219381a00ba0fa9226965d77eb3001c6a5ff8a4b75679e66",
+    "manifest_path": "datasets/manifests/composite/helix-gutenberg-prose.json",
+    "training_sha256": "75384e3c51779dfa32b72e48bddb806d2313ff1c51d581b743b3f9ff254d4226"
+  },
+  "schema_version": 1,
+  "tokenizer_id": "helix-gutenberg-prose-bpe",
+  "tokenizer_version": "r2-v1",
+  "trained_at": "2026-07-22",
+  "trainer": {
+    "algorithm": "byte-level BPE",
+    "implementation": "research/tokenizer/train_tokenizer.py",
+    "tokenizers_version": "0.23.1",
+    "vocab_size": 16000
+  }
+}

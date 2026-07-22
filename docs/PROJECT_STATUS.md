@@ -23,24 +23,30 @@ Current version: `0.1.0`
 - M8 Minimal Inference: checkpoint-to-text greedy generation with tokenizer identity validation.
 - R1 Evaluation Framework: manifest-verified in-corpus and out-of-corpus perplexity, a fixed
   prompt suite, automated repetition/distinct-n/memorization metrics, and manual-rubric reports.
+- R2 Dataset Expansion: verified Gutenberg *The Time Machine* onboarding, shared cleaning,
+  reviewable within- and cross-source deduplication, a versioned Moby-Dick/Time Machine composite
+  corpus, and a separately versioned composite-corpus tokenizer artifact.
 
 ## Current Repository State
 
-- The A3 training pipeline, M8 local inference path, and R1 evaluation framework are implemented.
+- The A3 training pipeline, M8 local inference path, R1 evaluation framework, and R2 composite
+  corpus pipeline are implemented.
 - Evaluation uses the Moby-Dick held-out split in-corpus and the independently versioned Project
   Gutenberg Alice's Adventures in Wonderland corpus out-of-corpus.
-- The verified suite has 66 tests: 63 unit tests and 3 subprocess integration tests.
+- The R2 training composite contains the verified Moby-Dick and *The Time Machine* sources; Alice
+  remains outside the training corpus for out-of-corpus evaluation.
+- The verified suite has 82 tests: 78 unit tests and 4 integration tests.
 - The default transformer has 16,889,856 trainable parameters.
 
 ## Next Milestone
 
-- R2 Dataset Expansion, followed by R3 Model Scaling. This canonical sequence supersedes the
-  older A4-to-A6 ordering.
+- R3 Model Scaling. This canonical sequence supersedes the older A4-to-A6 ordering.
 
 ## Known Technical Debt
 
-- The current tokenizer corpus is marked as a placeholder and must be replaced before a
-  serious v0.1 training run.
+- Existing training configs still default to the Moby-Dick-only tokenizer for checkpoint
+  compatibility; adopting the separate R2 composite tokenizer requires an explicit future config
+  selection.
 - Raw datasets are local/untracked; dataset versioning is still manifest-based rather than
   backed by DVC or object storage.
 - The current tokenizer artifact is tracked for testability, but future artifact promotion

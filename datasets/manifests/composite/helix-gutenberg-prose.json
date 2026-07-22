@@ -1,0 +1,51 @@
+{
+  "composition": {
+    "cleaning_version": "gutenberg-text-v1",
+    "config_path": "research/data/config/composite-gutenberg-prose-v1.yaml",
+    "cross_source_min_ngram_tokens": 50,
+    "fingerprint_sha256": "665a4ba254cfcd0a3568a47a3083eb31352660b331a41f190aeb758892245e32",
+    "heldout_assignment": "sha256-line-hash-over-full-composite",
+    "heldout_fraction": 0.1,
+    "prior_versions_archived": true,
+    "within_source_exact_line_deduplication": true
+  },
+  "content_hash": "75384e3c51779dfa32b72e48bddb806d2313ff1c51d581b743b3f9ff254d4226",
+  "current_version": "r2-v1-665a4ba254cf",
+  "dataset_id": "helix-gutenberg-prose",
+  "display_name": "Helix Gutenberg prose composite corpus",
+  "license": "Public domain in the USA; distributed under the Project Gutenberg License. Verify status in the deployment jurisdiction.",
+  "placeholder_corpus": false,
+  "processed_outputs": {
+    "dedup_exclusions": {
+      "exclusion_count": 3978,
+      "path": "datasets/processed/composite/helix-gutenberg-prose/dedup-exclusions.jsonl",
+      "sha256": "64e62867c4d4be0c480033c6bd4e0ff8f04cb2fca586f2902bd5956d43b130bd"
+    },
+    "heldout": {
+      "path": "datasets/processed/composite/helix-gutenberg-prose/heldout.txt",
+      "sha256": "9c4c01ae1950742d219381a00ba0fa9226965d77eb3001c6a5ff8a4b75679e66",
+      "unique_line_count": 2236
+    },
+    "training": {
+      "path": "datasets/processed/composite/helix-gutenberg-prose/train.txt",
+      "sha256": "75384e3c51779dfa32b72e48bddb806d2313ff1c51d581b743b3f9ff254d4226",
+      "unique_line_count": 19729
+    }
+  },
+  "schema_version": 1,
+  "source": "Composite of approved Project Gutenberg source datasets",
+  "sources": [
+    {
+      "manifest_path": "datasets/manifests/gutenberg-moby-dick.json",
+      "raw_sha256": "cca79713fb2eb809daa7da6538018a0190a57d661b59f3a2b68ce4e137bbf8fc",
+      "source_id": "gutenberg-moby-dick",
+      "source_version": "pg15-2026-01-10"
+    },
+    {
+      "manifest_path": "research/data/sources/manifests/gutenberg-time-machine.json",
+      "raw_sha256": "2892e919000e17c83e1dac51b30f4675db50536b644d7579fe8a89bb399a9bdc",
+      "source_id": "gutenberg-time-machine",
+      "source_version": "pg35-2026-06-16"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+version: 1
+tokenizer_id: helix-gutenberg-prose-bpe
+tokenizer_version: r2-v1
+vocab_size: 16000
+special_tokens:
+  - <pad>
+  - <bos>
+  - <eos>
+  - <unk>
+  - <user>
+  - <assistant>
+unk_token: <unk>
+normalization: NFC
+lowercase: false
+pre_tokenizer:
+  type: ByteLevel
+  add_prefix_space: false
+  use_regex: true
+min_frequency: 1
+
+corpus_name: helix-gutenberg-prose
+corpus_source: Composite of approved Project Gutenberg source datasets
+corpus_license: Public domain in the USA; verify status in the deployment jurisdiction.
+placeholder_corpus: false
+raw_corpus_path: research/data/sources/raw/
+raw_file_glob: "*.txt"
+corpus_path: datasets/processed/composite/helix-gutenberg-prose/
+training_file: train.txt
+heldout_file: heldout.txt
+heldout_fraction: 0.10
+manifest_path: datasets/manifests/composite/helix-gutenberg-prose.json
+
+artifacts_path: research/data/tokenizers/helix-gutenberg-prose-bpe-v1/
+tokenizer_file: tokenizer.json
+tokenizer_card_file: tokenizer_card.md
