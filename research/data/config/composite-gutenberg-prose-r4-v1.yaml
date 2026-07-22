@@ -1,0 +1,20 @@
+schema_version: 1
+composite_id: helix-gutenberg-prose
+declared_version: r4-v1
+heldout_fraction: 0.10
+dedup:
+  cross_source_min_ngram_tokens: 50
+sources:
+  - source_id: gutenberg-moby-dick
+    manifest_path: datasets/manifests/gutenberg-moby-dick.json
+    adr_path: docs/decisions/ADR-004-gutenberg-moby-dick-provenance.md
+  - source_id: gutenberg-time-machine
+    manifest_path: research/data/sources/manifests/gutenberg-time-machine.json
+    adr_path: docs/decisions/ADR-006-gutenberg-time-machine-provenance.md
+  - source_id: gutenberg-pride-and-prejudice
+    manifest_path: research/data/sources/manifests/gutenberg-pride-and-prejudice.json
+    adr_path: docs/decisions/ADR-008-gutenberg-pride-and-prejudice-provenance.md
+outputs:
+  directory: datasets/processed/composite/helix-gutenberg-prose
+  manifest_path: datasets/manifests/composite/helix-gutenberg-prose.json
+  dedup_log_path: datasets/processed/composite/helix-gutenberg-prose/dedup-exclusions.jsonl

@@ -29,6 +29,9 @@ Current version: `0.1.0`
 - R3 Model Scaling: complete; scaling outcome not yet justified. A 33,543,168-parameter model
   improved in-corpus perplexity but did not improve out-of-corpus perplexity over the
   16,889,856-parameter composite baseline.
+- R4 Dataset Expansion: verified Gutenberg *Pride and Prejudice* onboarding, a substantially
+  larger three-source composite, objective diversity and balance evidence, and an evidence-based
+  decision to reuse the existing composite tokenizer unchanged.
 
 ## Current Repository State
 
@@ -36,22 +39,26 @@ Current version: `0.1.0`
   corpus pipeline are implemented.
 - Evaluation uses the Moby-Dick held-out split in-corpus and the independently versioned Project
   Gutenberg Alice's Adventures in Wonderland corpus out-of-corpus.
-- The R2 training composite contains the verified Moby-Dick and *The Time Machine* sources; Alice
-  remains outside the training corpus for out-of-corpus evaluation.
+- The current R4 training composite contains verified Moby-Dick, *The Time Machine*, and *Pride
+  and Prejudice* sources; Alice remains outside the training corpus for out-of-corpus evaluation.
+- R4 version `r4-v1-688ecae1740e` contains 29,927 training lines and 3,371 held-out lines, compared
+  with R2's 19,729 and 2,236. Fragmentation analysis supported reusing the existing
+  `helix-gutenberg-prose-bpe-v1` tokenizer artifact without retraining.
 - R3 produced and evaluated distinct same-size composite-baseline and scaled checkpoint lineages;
   the evidence and conclusion are recorded in `docs/research/R3-scaling-comparison.md`.
-- The verified suite has 82 tests: 78 unit tests and 4 integration tests.
+- The verified suite has 90 tests: 86 unit tests and 4 integration tests.
 - The default transformer has 16,889,856 trainable parameters.
 
 ## Next Milestone
 
-- R3 is complete. Any later milestone requires a separately approved task.
+- R4 is complete. The R4 composite corpus and reused tokenizer are ready to serve as a future R5
+  scaling experiment's training input; R5 requires a separately approved task.
 
 ## Known Technical Debt
 
 - Existing training configs still default to the Moby-Dick-only tokenizer for checkpoint
-  compatibility; adopting the separate R2 composite tokenizer requires an explicit future config
-  selection.
+  compatibility; selecting the separate composite tokenizer for R4 training requires an explicit
+  future config choice.
 - Raw datasets are local/untracked; dataset versioning is still manifest-based rather than
   backed by DVC or object storage.
 - The current tokenizer artifact is tracked for testability, but future artifact promotion
